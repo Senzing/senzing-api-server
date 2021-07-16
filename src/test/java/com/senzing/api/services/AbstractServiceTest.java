@@ -565,7 +565,7 @@ public abstract class AbstractServiceTest {
       for (JsonObject jsonObject : jsonArray.getValuesAs(JsonObject.class)) {
         String  dataSourceCode  = jsonObject.getString("DSRC_CODE");
         int     dataSourceId    = jsonObject.getInt("DSRC_ID");
-        SzDataSource dataSource = new SzDataSource(dataSourceCode, dataSourceId);
+        SzDataSource dataSource = SzDataSource.FACTORY.create(dataSourceCode, dataSourceId);
         dataSourceMap.put(dataSource.getDataSourceCode(), dataSource);
       }
     }
@@ -586,7 +586,7 @@ public abstract class AbstractServiceTest {
 
         Integer eclassId    = jsonObject.getInt("ECLASS_ID");
         String  resolve     = jsonObject.getString("RESOLVE");
-        SzEntityClass entityClass = new SzEntityClass(
+        SzEntityClass entityClass = SzEntityClass.FACTORY.create(
             eclassCode, eclassId, "YES".equalsIgnoreCase(resolve));
 
         entityClassMap.put(
@@ -603,7 +603,7 @@ public abstract class AbstractServiceTest {
         Integer etypeId   = jsonObject.getInt("ETYPE_ID");
         Integer eclassId  = jsonObject.getInt("ECLASS_ID");
         SzEntityClass entityClass = entityClassesById.get(eclassId);
-        SzEntityType entityType = new SzEntityType(
+        SzEntityType entityType = SzEntityType.FACTORY.create(
             etypeCode, etypeId, entityClass.getEntityClassCode());
         entityTypeMap.put(entityType.getEntityTypeCode(), entityType);
       }
@@ -1190,9 +1190,9 @@ public abstract class AbstractServiceTest {
       success = true;
 
     } catch (Error|RuntimeException e) {
+      e.printStackTrace();
+      System.err.flush();
       if ("true".equals(System.getProperty("com.senzing.api.test.fastFail"))) {
-        e.printStackTrace();
-        System.err.flush();
         try {
           Thread.sleep(5000L);
         } catch (InterruptedException ignore) {

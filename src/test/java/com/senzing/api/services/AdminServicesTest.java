@@ -35,17 +35,68 @@ public class AdminServicesTest extends AbstractServiceTest {
     }
   }
 
-  @Test public void heartbeatTest() {
+  @Test public void rootTest() {
     this.performTest(() -> {
-      String uriText = this.formatServerUri("heartbeat");
-      UriInfo uriInfo = this.newProxyUriInfo(uriText);
+      try {
+        String uriText = this.formatServerUri("");
+        UriInfo uriInfo = this.newProxyUriInfo(uriText);
 
-      long before = System.nanoTime();
-      SzBasicResponse response = this.adminServices.heartbeat(uriInfo);
-      response.concludeTimers();
+        long before = System.nanoTime();
+        SzBasicResponse response = this.adminServices.root(uriInfo);
+        response.concludeTimers();
+        long after = System.nanoTime();
+
+        validateBasics(response, uriText, after - before);
+      } catch (Error error) {
+        error.printStackTrace();
+        throw error;
+      }
+    });
+  }
+
+  @Test public void rootViaHttpTest() {
+    this.performTest(() -> {
+      String  uriText = this.formatServerUri("");
+      long    before  = System.nanoTime();
+      SzBasicResponse response
+          = this.invokeServerViaHttp(GET, uriText, SzBasicResponse.class);
       long after = System.nanoTime();
 
       validateBasics(response, uriText, after - before);
+    });
+  }
+
+  @Test public void rootViaJavaClientTest() {
+    this.performTest(() -> {
+      String uriText = this.formatServerUri("");
+      long    before  = System.nanoTime();
+      com.senzing.gen.api.model.SzBaseResponse clientResponse
+          = this.adminApi.root();
+      long after = System.nanoTime();
+
+      SzBasicResponse response
+          = jsonCopy(clientResponse, SzBasicResponse.class);
+
+      validateBasics(response, uriText, after - before);
+    });
+  }
+
+  @Test public void heartbeatTest() {
+    this.performTest(() -> {
+      try {
+        String uriText = this.formatServerUri("heartbeat");
+        UriInfo uriInfo = this.newProxyUriInfo(uriText);
+
+        long before = System.nanoTime();
+        SzBasicResponse response = this.adminServices.heartbeat(uriInfo);
+        response.concludeTimers();
+        long after = System.nanoTime();
+
+        validateBasics(response, uriText, after - before);
+      } catch (Error error) {
+        error.printStackTrace();
+        throw error;
+      }
     });
   }
 
